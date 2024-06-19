@@ -1,5 +1,4 @@
 import { Unzipped, unzip } from "fflate";
-// import openapi from "../public/openapi.json";
 
 const json = (data: any) => {
   return new Response(JSON.stringify(data), {
@@ -28,11 +27,6 @@ function isUtf8Encoded(bytes: Uint8Array) {
 
 export const GET = async (request: Request) => {
   const url = new URL(request.url);
-
-  if (url.pathname === "/openapi.json") {
-    //  return json(openapi);
-  }
-
   const includeExt = url.searchParams.get("include-ext")?.split(",");
   const excludeExt = url.searchParams.get("exclude-ext")?.split(",");
   const excludeDir = url.searchParams.get("exclude-dir")?.split(",");
