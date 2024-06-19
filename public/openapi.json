@@ -48,7 +48,7 @@
             "description": "GitHub repository branch"
           },
           {
-            "name": "include-ext",
+            "name": "ext",
             "in": "query",
             "required": false,
             "schema": {
@@ -75,7 +75,7 @@
             "description": "Comma-separated list of directories to exclude"
           },
           {
-            "name": "include-dir",
+            "name": "dir",
             "in": "query",
             "required": false,
             "schema": {

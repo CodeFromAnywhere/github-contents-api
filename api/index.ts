@@ -20,10 +20,10 @@ export const mergeObjectsArray = <T extends { [key: string]: any }>(
 
 export const GET = async (request: Request) => {
   const url = new URL(request.url);
-  const includeExt = url.searchParams.get("include-ext")?.split(",");
+  const ext = url.searchParams.get("ext")?.split(",");
+  const dir = url.searchParams.get("dir")?.split(",");
   const excludeExt = url.searchParams.get("exclude-ext")?.split(",");
   const excludeDir = url.searchParams.get("exclude-dir")?.split(",");
-  const includeDir = url.searchParams.get("include-dir")?.split(",");
 
   const [_, owner, repo, branch] = url.pathname.split("/");
   const isJson = request.headers.get("accept") === "application/json";
@@ -74,13 +74,7 @@ export const GET = async (request: Request) => {
 
       if (type === "File") {
         if (
-          shouldIncludeFile(
-            nameWithoutPrefix,
-            includeExt,
-            excludeExt,
-            includeDir,
-            excludeDir,
-          )
+          shouldIncludeFile(nameWithoutPrefix, ext, excludeExt, dir, excludeDir)
         ) {
           const content = await streamToString(entry);
           fileContents[nameWithoutPrefix] =
