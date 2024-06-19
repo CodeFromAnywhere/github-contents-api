@@ -75,6 +75,15 @@
             "description": "Comma-separated list of directories to exclude"
           },
           {
+            "name": "include-dir",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated list of directories to include"
+          },
+          {
             "name": "accept",
             "in": "header",
             "required": false,
