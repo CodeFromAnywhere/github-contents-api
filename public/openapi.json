@@ -16,6 +16,7 @@
   "paths": {
     "/{owner}/{repo}/{branch}": {
       "get": {
+        "operationId": "getRepoContents",
         "summary": "Fetch and unzip files from a GitHub repository",
         "description": "Fetches the specified branch of the given repository owned by the specified owner, unzips the files, and returns their contents.",
         "parameters": [
