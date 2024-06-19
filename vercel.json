@@ -1,6 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "curl -fsSL https://bun.sh/install | bash && ~/.bun/bin/bun install --frozen-lockfile",
-  "buildCommand": "~/.bun/bin/bun run build",
-  "devCommand": "~/.bun/bin/bun run dev"
+  "rewrites": [
+    {
+      "source": "/:path*",
+      "destination": "/api/:path*"
+    }
+  ],
+  "functions": { "api/*.ts": { "maxDuration": 60, "memory": 1024 } },
+  "public": true
 }

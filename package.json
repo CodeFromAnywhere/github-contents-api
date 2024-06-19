@@ -3,16 +3,11 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
-  "scripts": {
-    "build": "bun build src/*.ts --compile --outfile server",
-    "start": "./server",
-    "dev": "bun run --watch src/index.ts"
-  },
+  "scripts": {},
   "dependencies": {
     "fflate": "^0.8.2"
   },
   "devDependencies": {
-    "@types/bun": "^1.1.4",
     "typescript": "^5.4.5"
   }
 }
