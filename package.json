@@ -3,7 +3,9 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
-  "scripts": {},
+  "scripts": {
+    "dev": "vercel dev"
+  },
   "dependencies": {
     "fflate": "^0.8.2"
   },

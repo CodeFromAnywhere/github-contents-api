@@ -4,17 +4,6 @@
 
 The GitHub Repository Fetcher API allows you to fetch and unzip files from a specified GitHub repository. It provides a simple interface to retrieve the contents of a repository branch, with options to include or exclude specific file extensions and directories.
 
-## API Version
-
-- **Action Schema Version:** 0.0.1
-- **OpenAPI Version:** 3.0.0
-
-## Base URL
-
-- **Default Server:** `https://github-contents-worker.actionschema.workers.dev`
-
-## Endpoints
-
 ### Fetch and Unzip Files from a GitHub Repository
 
 #### Endpoint
@@ -36,6 +25,7 @@ Fetches the specified branch of the given repository owned by the specified owne
 | include-ext | query  | string | No       | Comma-separated list of file extensions to include      |
 | exclude-ext | query  | string | No       | Comma-separated list of file extensions to exclude      |
 | exclude-dir | query  | string | No       | Comma-separated list of directories to exclude          |
+| include-dir | query  | string | No       | Comma-separated list of directories to include          |
 | accept      | header | string | No       | Accept header, use "application/json" for JSON response |
 
 #### Responses
@@ -56,7 +46,7 @@ Fetches the specified branch of the given repository owned by the specified owne
 
 ```
 GET /octocat/Hello-World/master?include-ext=md,txt&exclude-dir=node_modules
-Host: github-contents-worker.actionschema.workers.dev
+Host: github.actionschema.com
 Accept: application/json
 ```
 
@@ -84,4 +74,4 @@ Content-Type: application/json
 
 - Ensure the `accept` header is set to "application/json" if you prefer the response in JSON format.
 - The `include-ext` and `exclude-ext` query parameters help in filtering the files by their extensions.
-- The `exclude-dir` query parameter helps in excluding specific directories from the response.
+- The `include-dir` and `exclude-dir` query parameter helps in excluding specific directories from the response.
