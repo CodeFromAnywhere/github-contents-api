@@ -1,4 +1,5 @@
-import { Unzipped, unzip } from "fflate";
+import unzipper from "unzipper";
+import { PassThrough, Readable } from "stream";
 
 const json = (data: any) => {
   return new Response(JSON.stringify(data), {
@@ -16,14 +17,6 @@ export const mergeObjectsArray = <T extends { [key: string]: any }>(
 
   return result;
 };
-function isUtf8Encoded(bytes: Uint8Array) {
-  try {
-    new TextDecoder("utf-8", { fatal: true, ignoreBOM: false }).decode(bytes);
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 export const GET = async (request: Request) => {
   const url = new URL(request.url);
@@ -57,101 +50,106 @@ export const GET = async (request: Request) => {
   console.log({ apiUrl });
   const response = await fetch(apiUrl);
 
+  response.headers.forEach((value, key) => {
+    console.log({ key, value });
+  });
+
   if (!response.ok || !response.body) {
     return new Response("Failed to fetch repository", {
       status: response.status,
     });
   }
+  const fileContents: { [name: string]: string } = {};
 
-  // Get the response as a readable stream
-  const reader = response.body.getReader();
+  const nodeStream = new PassThrough();
+  Readable.fromWeb(response.body as any).pipe(nodeStream);
 
-  // Create a stream to accumulate the binary data
-  const chunks = [];
-  let done, value;
+  // Stream the response and unzip it
+  const unzipStream = nodeStream
+    .pipe(unzipper.Parse())
+    .on("entry", async (entry) => {
+      const filePath = entry.path;
+      const type = entry.type; // 'Directory' or 'File'
+      const nameWithoutPrefix = filePath.split("/").slice(1).join("/");
 
-  console.log("READY TO READ");
-
-  while ((({ done, value } = await reader.read()), !done)) {
-    chunks.push(value!);
-  }
-
-  // Concatenate all chunks into a single Uint8Array
-  const zipData = new Uint8Array(
-    chunks.reduce((acc, chunk) => {
-      const chunkArray = Array.from(chunk);
-      return acc.concat(chunkArray);
-    }, [] as number[]),
-  );
-
-  console.log("Got zip");
-
-  // Use fflate to unzip the data
-  const files = await new Promise<Unzipped>((resolve, reject) => {
-    unzip(zipData, {}, (err, result) => {
-      if (err) reject(err);
-      else resolve(result);
+      if (type === "File") {
+        if (
+          shouldIncludeFile(
+            nameWithoutPrefix,
+            includeExt,
+            excludeExt,
+            includeDir,
+            excludeDir,
+          )
+        ) {
+          const content = await streamToString(entry);
+          fileContents[nameWithoutPrefix] =
+            content ||
+            `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${nameWithoutPrefix}`;
+        } else {
+          entry.autodrain();
+        }
+      } else {
+        entry.autodrain();
+      }
     });
+
+  // Wait until the stream is finished
+  await new Promise((resolve, reject) => {
+    unzipStream.on("end", resolve);
+    unzipStream.on("error", reject);
   });
 
-  console.log("Unzipped");
-
-  // Prepare the response data
-  const fileContents: { [name: string]: string } = {};
-  for (const [name, file] of Object.entries(files)) {
-    const isUtf8 = isUtf8Encoded(file);
-    const nameWithoutPrefix = name.split("/").slice(1).join("/");
-    if (isUtf8) {
-      fileContents[nameWithoutPrefix] = new TextDecoder("utf-8").decode(file);
-    } else {
-      fileContents[
-        nameWithoutPrefix
-      ] = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${nameWithoutPrefix}`;
-    }
-  }
-
-  // Do the filtering
-  const filteredKeys = Object.keys(fileContents)
-    .filter((path) => {
-      if (!includeExt) {
-        return true;
-      }
-      return includeExt.find((ext) => path.endsWith("." + ext));
-    })
-    .filter((path) => {
-      if (!excludeExt) {
-        return true;
-      }
-      return !excludeExt.find((ext) => path.endsWith("." + ext));
-    })
-    .filter((path) => {
-      if (!includeDir) {
-        return true;
-      }
-      return includeDir.find((dir) => path.split("/").find((d) => d === dir));
-    })
-    .filter((path) => {
-      if (!excludeDir) {
-        return true;
-      }
-      return !excludeDir.find((dir) => path.split("/").find((d) => d === dir));
-    });
-
   if (isJson) {
-    const finalJson = filteredKeys.reduce(
-      (previous, current) => ({
-        ...previous,
-        [current]: fileContents[current],
-      }),
-      {},
-    );
-    return json(finalJson);
+    return json(fileContents);
   }
 
-  const fileString = filteredKeys
+  const fileString = Object.keys(fileContents)
     .map((path) => {
       return `${path}:\n-----------------------\n\n${fileContents[path]}`;
     })
     .join("\n\n-----------------------\n\n");
   return new Response(fileString);
+};
+
+const shouldIncludeFile = (
+  filePath: string,
+  includeExt: string[] | undefined,
+  excludeExt: string[] | undefined,
+  includeDir: string[] | undefined,
+  excludeDir: string[] | undefined,
+) => {
+  const ext = filePath.split(".").pop()!;
+
+  if (includeExt && !includeExt.includes(ext)) return false;
+  if (excludeExt && excludeExt.includes(ext)) return false;
+  if (includeDir && !includeDir.some((d) => filePath.startsWith(d)))
+    return false;
+  if (excludeDir && excludeDir.some((d) => filePath.startsWith(d)))
+    return false;
+
+  return true;
+};
+
+const streamToString = (
+  stream: NodeJS.ReadableStream,
+): Promise<string | null> => {
+  const chunks: any[] = [];
+
+  return new Promise<string | null>((resolve, reject) => {
+    const decoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: false });
+
+    stream.on("data", (chunk) => {
+      try {
+        // Decode each chunk to check for UTF-8 validity
+        decoder.decode(chunk, { stream: true });
+        chunks.push(chunk);
+      } catch (error) {
+        // If an error is thrown, the stream is not valid UTF-8
+        resolve(null);
+      }
+    });
+    stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
+    stream.on("error", () => resolve(null));
+  });
 };
