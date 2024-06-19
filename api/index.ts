@@ -100,10 +100,13 @@ export const GET = async (request: Request) => {
   const fileContents: { [name: string]: string } = {};
   for (const [name, file] of Object.entries(files)) {
     const isUtf8 = isUtf8Encoded(file);
+    const nameWithoutPrefix = name.split("/").slice(1).join("/");
     if (isUtf8) {
-      fileContents[name] = new TextDecoder("utf-8").decode(file);
+      fileContents[nameWithoutPrefix] = new TextDecoder("utf-8").decode(file);
     } else {
-      fileContents[name] = "Binary or non-UTF-8 encoded data";
+      fileContents[
+        nameWithoutPrefix
+      ] = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${nameWithoutPrefix}`;
     }
   }
 
