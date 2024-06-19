@@ -30,6 +30,7 @@ export const GET = async (request: Request) => {
   const includeExt = url.searchParams.get("include-ext")?.split(",");
   const excludeExt = url.searchParams.get("exclude-ext")?.split(",");
   const excludeDir = url.searchParams.get("exclude-dir")?.split(",");
+  const includeDir = url.searchParams.get("include-dir")?.split(",");
 
   const [_, owner, repo, branch] = url.pathname.split("/");
   const isJson = request.headers.get("accept") === "application/json";
@@ -84,7 +85,7 @@ export const GET = async (request: Request) => {
 
   // Use fflate to unzip the data
   const files = await new Promise<Unzipped>((resolve, reject) => {
-    unzip(zipData, (err, result) => {
+    unzip(zipData, {}, (err, result) => {
       if (err) reject(err);
       else resolve(result);
     });
@@ -114,6 +115,12 @@ export const GET = async (request: Request) => {
         return true;
       }
       return !excludeExt.find((ext) => path.endsWith("." + ext));
+    })
+    .filter((path) => {
+      if (!includeDir) {
+        return true;
+      }
+      return includeDir.find((dir) => path.split("/").find((d) => d === dir));
     })
     .filter((path) => {
       if (!excludeDir) {
