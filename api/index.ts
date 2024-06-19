@@ -54,6 +54,7 @@ export const GET = async (request: Request) => {
 
   const apiUrl = `https://github.com/${owner}/${repo}/archive/refs/heads/${branch}.zip`;
 
+  console.log({ apiUrl });
   const response = await fetch(apiUrl);
 
   if (!response.ok || !response.body) {
@@ -69,10 +70,10 @@ export const GET = async (request: Request) => {
   const chunks = [];
   let done, value;
 
+  console.log("READY TO READ");
+
   while ((({ done, value } = await reader.read()), !done)) {
-    if (value) {
-      chunks.push(value);
-    }
+    chunks.push(value!);
   }
 
   // Concatenate all chunks into a single Uint8Array
@@ -83,6 +84,8 @@ export const GET = async (request: Request) => {
     }, [] as number[]),
   );
 
+  console.log("Got zip");
+
   // Use fflate to unzip the data
   const files = await new Promise<Unzipped>((resolve, reject) => {
     unzip(zipData, {}, (err, result) => {
@@ -90,6 +93,8 @@ export const GET = async (request: Request) => {
       else resolve(result);
     });
   });
+
+  console.log("Unzipped");
 
   // Prepare the response data
   const fileContents: { [name: string]: string } = {};
