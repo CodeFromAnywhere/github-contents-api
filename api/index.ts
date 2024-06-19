@@ -1,8 +1,13 @@
-// instructions found on: https://maximevermeeren.medium.com/how-to-use-bun-on-vercel-7512383153d7
-
 import { Unzipped, unzip } from "fflate";
-import openapi from "../public/openapi.json";
+// import openapi from "../public/openapi.json";
 
+const json = (data: any) => {
+  return new Response(JSON.stringify(data), {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};
 export const mergeObjectsArray = <T extends { [key: string]: any }>(
   objectsArray: T[],
 ): T => {
@@ -25,7 +30,7 @@ export const GET = async (request: Request) => {
   const url = new URL(request.url);
 
   if (url.pathname === "/openapi.json") {
-    return Response.json(openapi);
+    //  return json(openapi);
   }
 
   const includeExt = url.searchParams.get("include-ext")?.split(",");
@@ -124,14 +129,14 @@ export const GET = async (request: Request) => {
     });
 
   if (isJson) {
-    const json = filteredKeys.reduce(
+    const finalJson = filteredKeys.reduce(
       (previous, current) => ({
         ...previous,
         [current]: fileContents[current],
       }),
       {},
     );
-    return Response.json(json);
+    return json(finalJson);
   }
 
   const fileString = filteredKeys
