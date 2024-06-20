@@ -23,13 +23,15 @@ export const GET = async (request: Request) => {
     return new Response("Please add your repository", { status: 404 });
   }
 
-  if (!branch) {
-    // for now, redirect to main always
-    const newUrl = `${url.origin}/${owner}/${repo}/main`;
-    return Response.redirect(newUrl, 302);
-  }
+  // if (!branch) {
+  //   // for now, redirect to main always
+  //   const newUrl = `${url.origin}/${owner}/${repo}/main`;
+  //   return Response.redirect(newUrl, 302);
+  // }
 
-  const apiUrl = `https://github.com/${owner}/${repo}/archive/refs/heads/${branch}.zip`;
+  const ref = branch ? `refs/heads/${branch}` : `HEAD`;
+
+  const apiUrl = `https://github.com/${owner}/${repo}/archive/${ref}.zip`;
 
   console.log({ apiUrl, url: request.url, method: request.method });
   const response = await fetch(apiUrl);
