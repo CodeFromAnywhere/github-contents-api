@@ -73,5 +73,9 @@ export const GET = async (request: Request) => {
 
   const logs = await git.log({ fs, dir: repoFolder });
 
-  return json(logs);
+  return json({
+    logs,
+    author: logs[0]?.commit?.author,
+    comitter: logs[0]?.commit?.committer,
+  });
 };
