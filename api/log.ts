@@ -33,6 +33,10 @@ export const GET = async (request: Request) => {
     { cwd: tempFolder, shell: true },
   );
 
+  const exists = fs.existsSync(repoFolder);
+
+  console.log({ exists, tempFolder, repoFolder });
+
   const logs = await git.log({ fs, dir: repoFolder });
 
   return json(logs);
