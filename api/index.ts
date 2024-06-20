@@ -1,6 +1,6 @@
 import unzipper from "unzipper";
 import { PassThrough, Readable } from "stream";
-import { json, shouldIncludeFile, streamToString } from "./util.js";
+import { json, shouldIncludeFile, streamToString } from "./util/util.js";
 
 export const GET = async (request: Request) => {
   const url = new URL(request.url);

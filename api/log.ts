@@ -2,7 +2,8 @@ import { spawnSync } from "child_process";
 import path from "path";
 import fs from "fs";
 import git from "isomorphic-git";
-import { json } from "./util.js";
+import { json } from "./util/util.js";
+import http from "./util/http.js";
 
 export const GET = async (request: Request) => {
   const url = new URL(request.url);
@@ -28,14 +29,47 @@ export const GET = async (request: Request) => {
     fs.rmSync(repoFolder, { recursive: true });
   }
 
-  spawnSync(
-    `git clone --filter=blob:none --no-checkout https://github.com/${owner}/${repo}.git`,
-    { cwd: tempFolder, shell: true },
-  );
+  // spawnSync(
+  //   `git clone --filter=blob:none --no-checkout https://github.com/${owner}/${repo}.git`,
+  //   { cwd: tempFolder, shell: true },
+  // );
+
+  // await git.clone({
+  //   dir: "/",
+  //   fs,
+  //   http,
+  //   depth: 1,
+  //   noCheckout: true,
+  //   onProgress: (ev) => {
+  //     console.log(ev);
+  //   },
+  //   onMessage: (ev) => {
+  //     console.log(ev);
+  //   },
+  //   url: `https://github.com/${owner}/${repo}`,
+  // });
+
+  // const files = await git.listFiles({ fs, dir: __dirname });
+
+  //console.log({ files });
 
   const exists = fs.existsSync(repoFolder);
 
   console.log({ exists, tempFolder, repoFolder });
+
+  // const info = await git.getRemoteInfo({
+  //   http,
+  //   url: `https://github.com/${owner}/${repo}.git`,
+  // });
+
+  await git.clone({
+    dir: repoFolder,
+    fs,
+    http,
+    depth: 1,
+    noCheckout: true,
+    url: `https://github.com/${owner}/${repo}`,
+  });
 
   const logs = await git.log({ fs, dir: repoFolder });
 
