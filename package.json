@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {},
   "dependencies": {
+    "isomorphic-git": "^1.25.10",
     "unzipper": "^0.12.1"
   },
   "devDependencies": {

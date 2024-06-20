@@ -2,6 +2,10 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
+      "source": "/log/:path*",
+      "destination": "/api/log.ts"
+    },
+    {
       "source": "/:path*",
       "destination": "/api/index.ts"
     },
@@ -10,6 +14,12 @@
       "destination": "/api/index.ts"
     }
   ],
-  "functions": { "api/*.ts": { "maxDuration": 60, "memory": 1024 } },
+  "functions": {
+    "api/*.ts": {
+      "maxDuration": 60,
+      "memory": 1024,
+      "includeFiles": "api/util.ts"
+    }
+  },
   "public": true
 }
