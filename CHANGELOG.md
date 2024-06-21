@@ -31,3 +31,15 @@ Also, the max duration of the function is now 60s, the max for the free plan. Th
 ## Streaming instead of naive unzip library
 
 After hosting it on vercel, things still didn't go well. After switching `fflate` into `unzipper`, things become much faster and I can now download big repos of over 100MB without timing out.
+
+# 20th June 2024
+
+I tried isomorphic-git. However, it doesn't support `--filter blob:none` yet which makes it too slow to put on a vercel function.
+
+See https://github.com/isomorphic-git/isomorphic-git/issues/1123 and https://github.com/isomorphic-git/isomorphic-git/issues/685#issuecomment-455423505
+
+Also, `git` through `child_process` also doesn't seem to work on vercel easily.
+
+If that would work, maybe this would be a great way to get all logging information for any repo, including recent changes and all kinds of statistics.
+
+For now let's let it pass.

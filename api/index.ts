@@ -4,6 +4,11 @@ import { json, shouldIncludeFile, streamToString } from "./util/util.js";
 
 export const GET = async (request: Request) => {
   const url = new URL(request.url);
+
+  if (url.pathname === "/auth/callback") {
+    return new Response("this is callback");
+  }
+
   const ext = url.searchParams.get("ext")?.split(",");
   const dir = url.searchParams.get("dir")?.split(",");
   const excludeExt = url.searchParams.get("exclude-ext")?.split(",");
