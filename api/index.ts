@@ -6,7 +6,30 @@ export const GET = async (request: Request) => {
   const url = new URL(request.url);
 
   if (url.pathname === "/auth/callback") {
-    return new Response("this is callback");
+    const code = url.searchParams.get("code");
+
+    if (!code) {
+      return new Response("Please give a code");
+    }
+
+    const result = await fetch("https://github.com/login/oauth/access_token", {
+      method: "POST",
+      body: JSON.stringify({
+        // the secret needs to be in the back...
+        client_id: "Ov23li2FVyYV9zqL6oJI",
+        client_secret: "f1971c20b9dedcbb1092f1ed091e75a2482ddc82",
+        code,
+      }),
+    }).then(
+      (res) =>
+        res.json() as Promise<{
+          access_token?: string;
+          token_type?: "bearer";
+          scope?: string;
+          error?: string;
+        }>,
+    );
+    return json(result);
   }
 
   const ext = url.searchParams.get("ext")?.split(",");
