@@ -14,3 +14,9 @@ Notes
 
 - you can replace `github.com` with `github.actionschema.com` to get the main contents)
 - Ensure the `accept` header is set to "application/json" if you prefer the response in JSON format.
+
+# Future plans
+
+See [ideas](ideas)
+
+## Being made with ❤️ by [wkarsens](https://x.com/wkarsens) 🇳🇱

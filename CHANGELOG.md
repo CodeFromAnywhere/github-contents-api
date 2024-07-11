@@ -43,3 +43,11 @@ Also, `git` through `child_process` also doesn't seem to work on vercel easily.
 If that would work, maybe this would be a great way to get all logging information for any repo, including recent changes and all kinds of statistics.
 
 For now let's let it pass.
+
+# 24th of June, 2024
+
+Discovered github has this feature too, at least for PR's:
+
+> ProTip! Add .patch or .diff to the end of URLs for Git’s plaintext views.
+
+When did this get added? Is it part of the API? Let's proxy this feature so I have it documented.
