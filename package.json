@@ -1,5 +1,5 @@
 {
-  "name": "github-contents-vercel",
+  "name": "github-contents-api",
   "type": "module",
   "version": "0.0.1",
   "private": true,
